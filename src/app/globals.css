@@ -1354,6 +1354,40 @@
   }
 }
 
+/* ============================================================
+   The theme flip
+
+   Applied by ThemeToggle for ~200ms around the change and then removed.
+   Living here rather than in the base layer is deliberate: a permanent
+   transition on background-color and color would apply to every hover
+   state in the app, which turns a crisp button into a laggy one. This way
+   the flip cross-fades and nothing else is slowed down by a millisecond.
+
+   `!important` because a component's own `transition-colors` would
+   otherwise win on specificity and cut mid-fade.
+   ============================================================ */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color 180ms var(--ease-out),
+    border-color 180ms var(--ease-out),
+    color 180ms var(--ease-out),
+    fill 180ms var(--ease-out),
+    stroke 180ms var(--ease-out) !important;
+}
+
+/* Someone who asked for less motion asked for less of this too. */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition,
+  .theme-transition *,
+  .theme-transition *::before,
+  .theme-transition *::after {
+    transition: none !important;
+  }
+}
+
 @media (prefers-contrast: more) {
   :root {
     --border: rgba(255, 255, 255, 0.22);

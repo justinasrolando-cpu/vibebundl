@@ -12,12 +12,23 @@ import { BUILDER_AVATAR, BUILDER_HANDLE, BUILDER_URL } from "@/lib/site";
  *
  * The avatar is a plain <img> rather than next/image on purpose: next/image
  * wants known dimensions and a configured remote host, and this is one 28px
- * square. If the file isn't there yet the error handler swaps in a monogram —
- * so the credit is never a broken-image icon, and adding the photo later is
- * dropping a file into public/ with no code change.
+ * square. If the file isn't there yet a monogram takes its place — so the
+ * credit is never a broken-image icon, and adding the photo later is dropping
+ * a file into public/ with no code change.
+ *
+ * `onError` alone does not achieve that. The browser starts fetching the
+ * image while it is parsing the server-rendered HTML, which is before React
+ * has hydrated and attached any handler — so for an image that 404s, the
+ * error fires into nothing and the broken-image glyph stays forever. The ref
+ * callback closes that window by asking the element directly: an <img> that
+ * has finished loading with `naturalWidth === 0` failed, whenever it failed.
  */
 export default function BuiltBy({ className = "" }: { className?: string }) {
   const [photoFailed, setPhotoFailed] = useState(false);
+
+  const checkOnMount = (node: HTMLImageElement | null) => {
+    if (node?.complete && node.naturalWidth === 0) setPhotoFailed(true);
+  };
 
   return (
     <a
@@ -32,6 +43,7 @@ export default function BuiltBy({ className = "" }: { className?: string }) {
         ) : (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
+            ref={checkOnMount}
             src={BUILDER_AVATAR}
             alt=""
             width={28}

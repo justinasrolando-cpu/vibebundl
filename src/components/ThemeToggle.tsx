@@ -41,7 +41,17 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
+    const root = document.documentElement;
+
+    /* Cross-fade the flip rather than cutting to it. The transition lives on
+       a class that only exists for the length of the change — putting it in
+       the base stylesheet would make every colour change in the app take
+       180ms, including hover states, which is the difference between a
+       responsive button and a sluggish one. */
+    root.classList.add("theme-transition");
+    window.setTimeout(() => root.classList.remove("theme-transition"), 220);
+
+    root.setAttribute("data-theme", next);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {

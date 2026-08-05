@@ -1,3 +1,5 @@
+import Script from "next/script";
+
 export const THEME_STORAGE_KEY = "vb-theme";
 
 /**
@@ -15,6 +17,15 @@ export const THEME_STORAGE_KEY = "vb-theme";
  *
  * `suppressHydrationWarning` on <html> is required because this script
  * mutates the attribute the server rendered.
+ *
+ * It goes through next/script rather than a bare <script> tag. A bare tag
+ * renders and runs correctly from the server HTML, but React warns about it
+ * on every page ("scripts inside React components are never executed when
+ * rendering on the client") — and the warning is telling the truth: on a
+ * client-side navigation nothing re-runs it. That happens to be harmless
+ * here, because the attribute it sets lives on <html> and survives every
+ * in-app navigation. `beforeInteractive` says the same thing without the
+ * noise, and says it in the way Next can actually reason about.
  */
 export default function ThemeScript() {
   const js = `(function(){try{
@@ -23,5 +34,9 @@ var t=(s==="light"||s==="dark")?s:(window.matchMedia("(prefers-color-scheme: lig
 document.documentElement.setAttribute("data-theme",t);
 }catch(e){document.documentElement.setAttribute("data-theme","dark")}})()`;
 
-  return <script dangerouslySetInnerHTML={{ __html: js }} />;
+  return (
+    <Script id="vb-theme" strategy="beforeInteractive">
+      {js}
+    </Script>
+  );
 }
