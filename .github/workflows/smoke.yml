@@ -25,18 +25,34 @@ jobs:
       # the checks would race the deploy and could pass against the PREVIOUS
       # build — a green tick for code nobody tested, which is worse than no
       # check at all.
+      #
+      # THREE CONSECUTIVE matches, not one. Vercel switches the production
+      # alias per edge node, not atomically: the first request can report the
+      # new SHA while the next one still lands on the old deployment. Observed
+      # directly — a SHA check passed and the request immediately after it got
+      # a 404 from the previous build. One match proves an edge has caught up;
+      # three in a row proves the rollout has actually settled.
       - name: Wait for this commit to reach production
         run: |
+          hits=0
           for i in $(seq 1 60); do
             live=$(curl -fsS --max-time 10 https://vibebundl.com/api/health | jq -r '.sha' || echo "")
             if [ "$live" = "$GITHUB_SHA" ]; then
-              echo "✓ ${GITHUB_SHA:0:7} is live (after ~$((i * 10))s)"
-              exit 0
+              hits=$((hits + 1))
+              if [ "$hits" -ge 3 ]; then
+                echo "✓ ${GITHUB_SHA:0:7} live and settled (after ~$((i * 5))s)"
+                exit 0
+              fi
+              echo "  match ${hits}/3…"
+            else
+              # Reset: a miss means we were reading a node mid-rollout, so any
+              # streak we had built up meant nothing.
+              hits=0
+              echo "  serving ${live:0:7}, waiting for ${GITHUB_SHA:0:7}… (${i}/60)"
             fi
-            echo "  serving ${live:0:7}, waiting for ${GITHUB_SHA:0:7}… (${i}/60)"
-            sleep 10
+            sleep 5
           done
-          echo "::error::Timed out after 10 minutes. Check the Vercel build log."
+          echo "::error::Timed out after 5 minutes. Check the Vercel build log."
           exit 1
 
       - name: Every public route returns 200
