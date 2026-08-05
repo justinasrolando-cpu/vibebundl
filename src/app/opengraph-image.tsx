@@ -7,7 +7,7 @@ import {
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = `VibeBundl — ${TOOL_COUNT_LABEL} SaaS bills, one subscription`;
+export const alt = `VibeBundl — ${TOOL_COUNT_LABEL} subscriptions, one bill`;
 
 /**
  * The share card. Rendered at request time by Next's OG runtime, so the
@@ -141,7 +141,7 @@ export default function OpengraphImage() {
               }}
             >
               <span style={{ color: RUST }}>{TOOL_COUNT_LABEL}</span>
-              <span style={{ marginLeft: 20 }}>SaaS bills you were</span>
+              <span style={{ marginLeft: 20 }}>subscriptions you were</span>
             </div>
             <div
               style={{

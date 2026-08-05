@@ -6,11 +6,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ThemeScript from "@/components/ThemeScript";
 import { BUNDLE_PRICE_USD, TOOL_COUNT_LABEL } from "@/lib/tools";
 
-/* Both halves of the trade in five words, and the same vocabulary as the
-   hero. This is the line that shows in a browser tab, in search results, and
-   under the card when someone posts the link — it should not be the one
-   place still calling them "subscriptions". */
-const TITLE = `VibeBundl — ${TOOL_COUNT_LABEL} SaaS bills, one subscription`;
+const TITLE = `VibeBundl — ${TOOL_COUNT_LABEL} subscriptions, one bill`;
 const BLURB = `${TOOL_COUNT_LABEL} small tools behind one login and one $${BUNDLE_PRICE_USD}/mo subscription. Built from the community verdicts on canivibecodeit.com — the SaaS everyone said was one prompt away from free.`;
 
 /**

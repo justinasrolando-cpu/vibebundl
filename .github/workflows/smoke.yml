@@ -1,0 +1,103 @@
+name: Production smoke test
+
+# Runs after every push to main. Vercel is already building the same commit;
+# this waits for that build to reach production and then asks the questions a
+# build cannot answer — does it actually serve, and are the security fixes
+# still in place.
+#
+# Vercel does NOT promote a failed build, so a compile error is safe: the last
+# good deployment keeps serving. What this catches is the other kind — code
+# that compiles fine and 500s at request time. That has happened on this
+# project once already.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      # Wait until /api/health reports the commit we just pushed. Without this
+      # the checks would race the deploy and could pass against the PREVIOUS
+      # build — a green tick for code nobody tested, which is worse than no
+      # check at all.
+      - name: Wait for this commit to reach production
+        run: |
+          for i in $(seq 1 60); do
+            live=$(curl -fsS --max-time 10 https://vibebundl.com/api/health | jq -r '.sha' || echo "")
+            if [ "$live" = "$GITHUB_SHA" ]; then
+              echo "✓ ${GITHUB_SHA:0:7} is live (after ~$((i * 10))s)"
+              exit 0
+            fi
+            echo "  serving ${live:0:7}, waiting for ${GITHUB_SHA:0:7}… (${i}/60)"
+            sleep 10
+          done
+          echo "::error::Timed out after 10 minutes. Check the Vercel build log."
+          exit 1
+
+      - name: Every public route returns 200
+        run: |
+          fail=0
+          for path in "/" "/login" "/request" "/sponsor" "/press" "/terms" "/privacy" \
+                      "/tools/booking" "/tools/shortener" "/sitemap.xml" "/robots.txt" \
+                      "/opengraph-image"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://vibebundl.com$path")
+            if [ "$code" != "200" ]; then
+              echo "::error::$path returned $code"
+              fail=1
+            else
+              echo "  200  $path"
+            fi
+          done
+          exit $fail
+
+      # Signed-out /dashboard must bounce to the login page. If this ever
+      # returns 200 the paywall is gone and the whole catalogue is free.
+      - name: Dashboard is gated
+        run: |
+          dest=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 20 https://vibebundl.com/dashboard)
+          case "$dest" in
+            *"/login"*) echo "  ✓ /dashboard → $dest" ;;
+            *) echo "::error::/dashboard did not redirect to login (got '${dest:-nothing}')"; exit 1 ;;
+          esac
+
+      # Regression tests for the audit findings. These were real holes, and a
+      # refactor could quietly reopen any of them — that is exactly what a
+      # regression test is for.
+      - name: Open redirect stays closed
+        run: |
+          fail=0
+          for evil in "//evil.com" "@evil.com" '\\evil.com' "https://evil.com"; do
+            dest=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 20 \
+                   --get --data-urlencode "next=$evil" https://vibebundl.com/auth/callback)
+            case "$dest" in
+              https://vibebundl.com/*) echo "  ✓ next=$evil → $dest" ;;
+              *) echo "::error::next=$evil escaped to '$dest'"; fail=1 ;;
+            esac
+          done
+          # And a legitimate path must still survive, or we've "fixed" it by
+          # breaking the feature.
+          dest=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 20 \
+                 "https://vibebundl.com/auth/callback?next=/dashboard/notes")
+          [ "$dest" = "https://vibebundl.com/dashboard/notes" ] \
+            || { echo "::error::legitimate next= was discarded (got '$dest')"; fail=1; }
+          exit $fail
+
+      - name: Stripe webhook rejects unsigned calls
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
+                 -X POST -d '{}' https://vibebundl.com/api/stripe/webhook)
+          # 400 = signature check ran and refused. A 200 would mean anyone can
+          # forge a "subscription active" event.
+          [ "$code" = "400" ] || { echo "::error::webhook answered $code, expected 400"; exit 1; }
+          echo "  ✓ unsigned webhook rejected ($code)"
+
+      - name: Database is reachable from production
+        run: |
+          db=$(curl -fsS --max-time 20 https://vibebundl.com/api/health | jq -r '.database')
+          [ "$db" = "ok" ] || { echo "::error::health reports database=$db"; exit 1; }
+          echo "  ✓ database ok"
