@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LegalPage from "@/components/LegalPage";
 import { BUNDLE_PRICE_USD, TOOL_COUNT_LABEL } from "@/lib/tools";
-import { CONTACT_EMAIL, JURISDICTION } from "@/lib/site";
+import { CONTACT_EMAIL, JURISDICTION, JURISDICTION_CITY } from "@/lib/site";
 
 const TITLE = "Terms of Service";
 const BLURB =
@@ -179,8 +179,12 @@ export default function TermsPage() {
       <h2>11. Law</h2>
       <p>
         These terms are governed by the laws of {JURISDICTION}, and the courts of{" "}
-        {JURISDICTION} have jurisdiction — except that if you&apos;re a consumer, you keep
-        the right to bring a claim in your own country&apos;s courts under its own law.
+        {JURISDICTION_CITY} have jurisdiction — except that if you&apos;re a consumer, you
+        keep the right to bring a claim in your own country&apos;s courts under its own law.
+      </p>
+      <p>
+        Any period we quote — the 14-day refund window, the 30 days&apos; notice — runs on{" "}
+        {JURISDICTION_CITY} time (CET/CEST).
       </p>
 
       <h2>12. Contact</h2>

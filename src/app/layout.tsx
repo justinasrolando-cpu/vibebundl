@@ -35,7 +35,10 @@ export const metadata: Metadata = {
   title: TITLE,
   description: BLURB,
   openGraph: { title: TITLE, description: BLURB, type: "website" },
-  twitter: { card: "summary", title: TITLE, description: BLURB },
+  // summary_large_image, not summary: "summary" renders the tiny square
+  // thumbnail-beside-text card on X, which crops the 1200x630 share image to
+  // an unreadable sliver. The large card is the full-width banner.
+  twitter: { card: "summary_large_image", title: TITLE, description: BLURB },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

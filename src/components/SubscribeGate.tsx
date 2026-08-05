@@ -65,10 +65,13 @@ export default function SubscribeGate() {
             One subscription.{" "}
             <span className="whitespace-nowrap">All {TOOL_COUNT_LABEL} tools.</span>
           </h1>
+          {/* Reads for both arrivals: a new account that closed the Stripe tab,
+              and a lapsed subscriber whose card stopped working. Neither of
+              them needs to be told they're signed in — they can see that. */}
           <p className="lede mt-3">
-            You&apos;re signed in — this is the last step. Every tool in the sidebar opens at the
-            same moment. Bought one at a time, the apps they replace run about {MULTIPLE}× the
-            price.
+            Your account is ready; the subscription isn&apos;t started yet. Every tool in the
+            sidebar opens the moment it is. Bought one at a time, the apps they replace run
+            about {MULTIPLE}× the price.
           </p>
         </header>
 

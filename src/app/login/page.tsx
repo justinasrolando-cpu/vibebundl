@@ -152,16 +152,20 @@ function LoginForm() {
       setFormError(friendlyError(error.message, "sign-up"));
       return;
     }
-    /* With email confirmation disabled, signUp returns a live session — send
-       them straight in (to Stripe, if they arrived with purchase intent).
-       Otherwise session is null and the inbox step is next. */
+    /* With email confirmation disabled, signUp returns a live session — and a
+       new account always goes straight to Stripe, whether or not they arrived
+       with `?checkout=1`.
+
+       There is nothing behind this door for someone without a subscription.
+       Dropping a fresh account onto a dashboard-shaped paywall was the worst
+       screen in the product: it looks like the thing they just signed up for,
+       except every tool is locked, and the natural read is "I've been had".
+       Signing up *is* the intent to buy, so the next screen is the card form.
+
+       If they close Stripe, they land back on the subscribe wall — which is
+       the right fallback and the reason this isn't a redirect loop. */
     if (data.session) {
-      if (wantsCheckout) {
-        void goToCheckoutOr(next);
-        return;
-      }
-      router.push(next);
-      router.refresh();
+      void goToCheckoutOr(next);
       return;
     }
     setLoading(false);
@@ -224,8 +228,14 @@ function LoginForm() {
                 <p className="mt-1.5 text-sm leading-relaxed text-muted">
                   {signingIn
                     ? `All ${TOOL_COUNT_LABEL} tools, right where you left them.`
-                    : `Takes a minute. You'll pick up the $${BUNDLE_PRICE_USD}/mo plan straight after.`}
+                    : "Email and a password. The next screen is payment."}
                 </p>
+
+                {/* What they're buying, stated before they hand over an email
+                    rather than after. The button below sends them to Stripe,
+                    and a redirect to a card form is only reasonable when the
+                    price and the terms were on screen first. */}
+                {!signingIn && <PlanSummary />}
 
                 <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-3.5">
                   <Field
@@ -273,11 +283,21 @@ function LoginForm() {
                     {loading
                       ? signingIn
                         ? "Signing in…"
-                        : "Creating account…"
+                        : "Taking you to payment…"
                       : signingIn
                         ? "Sign in"
-                        : "Create account"}
+                        : `Continue to payment — $${BUNDLE_PRICE_USD}/mo`}
                   </button>
+
+                  {/* Says where the button goes. A submit labelled "Create
+                      account" that lands on a card form reads as a bait and
+                      switch even when it isn't one. */}
+                  {!signingIn && (
+                    <p className="text-center text-[0.6875rem] leading-relaxed text-muted-2">
+                      Next stop is Stripe&apos;s secure checkout. Cancel any time — no
+                      contract, no notice period.
+                    </p>
+                  )}
                 </form>
 
                 <p className="mt-5 border-t border-border pt-4 text-xs leading-relaxed text-muted-2">
@@ -313,6 +333,51 @@ function LoginForm() {
         </div>
       </div>
     </main>
+  );
+}
+
+/* ------------------------------------------------------------ plan card --- */
+
+/**
+ * The receipt, before the card form.
+ *
+ * Creating an account here sends you to Stripe on submit, and a redirect to
+ * a payment page is only fair if the price, the cadence and the exit were
+ * already on screen. That's all this is: what you get, what it costs, what
+ * it costs to leave.
+ *
+ * "One charge" is stated explicitly because the most common worry about a
+ * bundle of 53 things is that it's 53 line items or a setup fee. It's one
+ * subscription and nothing else, and saying so is cheaper than a support
+ * email asking.
+ */
+function PlanSummary() {
+  return (
+    <div className="mt-5 rounded-lg border border-border bg-background p-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-sm tracking-tight">Everything, one plan</span>
+        <span className="tnum shrink-0 text-sm">
+          ${BUNDLE_PRICE_USD}
+          <span className="text-muted-2">/mo</span>
+        </span>
+      </div>
+
+      <ul className="mt-3 flex flex-col gap-1.5">
+        {[
+          `All ${TOOLS.length} tools unlocked immediately`,
+          `Replaces about $${TOTAL_ROUNDED}/mo of separate SaaS`,
+          "One charge a month. No seats, no per-tool upsells",
+          "Cancel in one click from Settings",
+        ].map((line) => (
+          <li key={line} className="flex gap-2 text-xs leading-relaxed text-muted">
+            <span className="mt-[0.3em] text-accent" aria-hidden>
+              ✓
+            </span>
+            {line}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

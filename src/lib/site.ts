@@ -30,4 +30,8 @@ export const GITHUB_URL = "https://github.com/justinasrolando/vibebundl";
  * it is the one line in the Terms that a lawyer would look at first, and
  * getting it wrong makes the rest of the document weaker, not just wrong.
  */
-export const JURISDICTION = "Argentina";
+export const JURISDICTION = "Spain";
+
+/** Where "we" are, for the Terms and for any time we quote an hour. */
+export const JURISDICTION_CITY = "Madrid";
+export const TIMEZONE = "Europe/Madrid";
