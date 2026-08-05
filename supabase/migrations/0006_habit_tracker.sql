@@ -1,0 +1,11 @@
+-- ---------------------------------------------------------------------------
+-- Habit Tracker (replaces Streaks / Habitica)
+--
+-- SUPERSEDED. These tables are created by 0004_fifty_tools.sql. This file was
+-- written concurrently by a parallel agent that did not see 0004, so applying
+-- both to a fresh database failed on `create table habits` already exists.
+-- Kept as a no-op rather than deleted so the migration numbering stays stable
+-- for anyone who already applied it.
+-- ---------------------------------------------------------------------------
+
+-- intentionally empty

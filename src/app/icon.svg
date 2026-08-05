@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    VibeBundl mark: three stacked bars bound by a bracket.
+    Many things (the tools) collapsed into one held object (the bundle).
+    Deliberately a *bracket*, not the reference site's [?!] enclosure —
+    same family of idea, different glyph, so it reads as a sibling rather
+    than a copy.
+  -->
+  <rect width="32" height="32" rx="8" fill="#08090a"/>
+  <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#fafafa" stroke-opacity="0.4"/>
+  <g stroke="#fafafa" stroke-width="2.1" stroke-linecap="round" fill="none">
+    <!-- the binding bracket -->
+    <path d="M10 8.5H8.6A1.6 1.6 0 0 0 7 10.1v11.8a1.6 1.6 0 0 0 1.6 1.6H10"/>
+    <path d="M22 8.5h1.4A1.6 1.6 0 0 1 25 10.1v11.8a1.6 1.6 0 0 1-1.6 1.6H22"/>
+    <!-- three bundled items, shortest on top -->
+    <path d="M13 11.8h5"/>
+    <path d="M13 16h6"/>
+    <path d="M13 20.2h4"/>
+  </g>
+</svg>
