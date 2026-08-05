@@ -72,5 +72,8 @@ retint the whole app without touching a single component.
 
 ## Licence
 
-The code is not currently open source. The brand assets at
-[/press](https://vibebundl.com/press) are free to use as described there.
+Source-available, not open source — see [LICENSE](LICENSE). Read it, run it,
+take pieces of it, send a PR. Don't run it as a competing paid service.
+
+The brand assets at [/press](https://vibebundl.com/press) are free to use as
+described there.

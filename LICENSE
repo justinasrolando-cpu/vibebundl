@@ -1,0 +1,42 @@
+Copyright (c) 2026 Justinas Rolando. All rights reserved.
+
+This source code is published so it can be read, learned from, and checked.
+It is NOT open source, and putting it on GitHub does not make it so.
+
+WHAT YOU MAY DO
+---------------
+
+  - Read all of it.
+  - Clone it, run it locally, and take it apart to see how it works.
+  - Copy small pieces into your own projects.
+  - Fork it and open a pull request.
+  - Quote or screenshot it in writing, teaching, or a talk.
+
+WHAT YOU MAY NOT DO
+-------------------
+
+  - Run this as a service that other people pay for, or that competes with
+    VibeBundl.
+  - Redistribute it, in whole or in substantial part, as your own product —
+    free or paid.
+  - Remove this notice from copies you keep.
+
+If you want to do something this licence doesn't allow, ask:
+hello@vibebundl.com. The answer is often yes.
+
+NO WARRANTY
+-----------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+If you would rather rely on a standard, lawyer-reviewed licence with the same
+intent, the closest match is the PolyForm Noncommercial License 1.0.0:
+https://polyformproject.org/licenses/noncommercial/1.0.0/

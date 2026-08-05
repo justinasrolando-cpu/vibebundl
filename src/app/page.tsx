@@ -63,8 +63,20 @@ export default function Home() {
             </span>
           </p>
 
+          {/* "SaaS bills", not "subscriptions" and not "tools".
+
+              "Subscriptions" was abstract — it names the billing mechanism
+              rather than the feeling — and it asked the reader to resent the
+              exact thing we then sell them.
+
+              "Tools" would be worse: it's what we call our own 53, so the
+              enemy and the product would share a word and the sentence would
+              stop meaning anything.
+
+              "SaaS" is the audience's own vocabulary, and "bills" is the part
+              that stings — money leaving an account every month. */}
           <h1 className="animate-fade-in display mt-6 max-w-2xl" style={stagger(1, 40)}>
-            <span className="text-gradient tnum">{TOOL_COUNT_LABEL}</span> subscriptions you were
+            <span className="text-gradient tnum">{TOOL_COUNT_LABEL}</span> SaaS bills you were
             told you could vibecode away.
             {/* Subordinate size, not just subordinate colour — the punchline
                 should land after the claim, not compete with it. */}
