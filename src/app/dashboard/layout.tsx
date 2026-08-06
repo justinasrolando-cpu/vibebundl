@@ -15,6 +15,7 @@ import ToolNav from "@/components/ToolNav";
 import MobileNav from "@/components/MobileNav";
 import SponsorRail from "@/components/SponsorRail";
 import ThemeToggle from "@/components/ThemeToggle";
+import ToolUsage from "@/components/ToolUsage";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, hasAccess } = await getActiveSubscription();
@@ -36,6 +37,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <AccentScope accent={accent} className="flex min-h-screen">
+      {/* Ranks the 53 by how often they're opened. Until now we've been
+          guessing which ones matter. */}
+      <Suspense fallback={null}>
+        <ToolUsage />
+      </Suspense>
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-background-elevated p-3 md:flex">
         <div className="flex items-center justify-between px-2 pt-1 pb-3">
           <Link href="/dashboard" className="text-sm font-semibold tracking-tight">

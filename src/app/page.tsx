@@ -73,8 +73,14 @@ export default function Home() {
             </span>
           </h1>
 
-          <p className="animate-fade-in lede mt-6 max-w-md" style={stagger(2, 40)}>
-            One login. One bill. Every tool we add is included — and{" "}
+          <p className="animate-fade-in lede mt-6 max-w-lg" style={stagger(2, 40)}>
+            Small versions of {TOOLS.length} products, behind one login. Not replacements —
+            if you lean on one of the originals, keep paying for it. This is for the
+            next tool you&apos;d sign up for and use twice.
+          </p>
+
+          <p className="animate-fade-in mt-3 max-w-md text-sm text-muted-2" style={stagger(2, 40)}>
+            Every tool we add is included, and{" "}
             <Link
               href="/request"
               className="text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
@@ -137,12 +143,13 @@ export default function Home() {
             <div>
               <p className="eyebrow">The math</p>
               <h2 className="title-1 mt-2 max-w-md">
-                You&apos;re not paying for software. You&apos;re paying {TOOLS.length} invoices.
+                The problem was never one subscription. It&apos;s the next one.
               </h2>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
-                {OVERPRICED.length} of the {TOOLS.length} cost more on their own than this entire
-                bundle. The worst offender is {PRICIEST_MULTIPLE}× the price of everything here —
-                by itself.
+                You need a QR code once. A form once. A booking page for one week. Each
+                one is a signup, a card, and something you forget to cancel —{" "}
+                {OVERPRICED.length} of these cost more on their own than this entire bundle,
+                and the priciest is {PRICIEST_MULTIPLE}× it by itself.
               </p>
               <Link href="/login?checkout=1" className="btn btn-primary btn-lg mt-7">
                 start now — ${BUNDLE_PRICE_USD}/mo
@@ -152,7 +159,7 @@ export default function Home() {
             {/* The receipt sits inset in the panel — a darker well inside a lit surface. */}
             <div className="card p-5 font-mono text-sm sm:p-6">
               <ReceiptRow
-                label={`${TOOLS.length} subscriptions`}
+                label={`${TOOLS.length} at list price`}
                 value={`${usd(TOTAL_ORIGINAL_PRICE)}/mo`}
                 strike
               />

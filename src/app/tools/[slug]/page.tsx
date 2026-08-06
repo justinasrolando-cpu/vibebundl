@@ -9,7 +9,6 @@ import {
   BUNDLE_PRICE_USD,
   TOOLS,
   TOOLS_BY_SLUG,
-  TOOL_COUNT_LABEL,
   categoryKey,
 } from "@/lib/tools";
 
@@ -120,13 +119,22 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
         </div>
 
         <h1 className="mt-6 text-3xl tracking-[var(--tracking-display)] md:text-4xl">
-          Can I stop paying for {tool.replaces}?
+          A smaller {tool.replaces}, for people who don&apos;t need {tool.replaces}.
         </h1>
+
+        {/* The old headline was "Can I stop paying for X?" — a question this page
+            then had to answer "yes, probably". The first outside reader tested it
+            against the one product he actually paid for and it lost, correctly.
+            Anyone who depends on the original will always find ours thinner, so
+            the page now disqualifies them in the first sentence instead of
+            selling to them and being found out in the second. */}
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          Short answer: probably, if you use the core of it. {tool.description} It&apos;s in
-          VibeBundl along with {others} other tools for ${BUNDLE_PRICE_USD}/mo. The long
-          answer — including what you&apos;d actually give up — is below, and we haven&apos;t
-          softened it.
+          <strong className="text-foreground">
+            If {tool.replaces} is load-bearing for you, don&apos;t switch.
+          </strong>{" "}
+          You&apos;ll find this thinner and you&apos;ll be right. {tool.description} It comes
+          with {others} other tools for ${BUNDLE_PRICE_USD}/mo — which is the argument, not
+          that it beats a product with a team behind it.
         </p>
 
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -152,9 +160,8 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
               About{" "}
               <strong className="text-foreground">${tool.originalPrice} a month</strong>, which
               is <strong className="text-foreground">${yearly} a year</strong>, on the plan most
-              individuals end up on. That figure is what we use in our own arithmetic — the
-              savings number on the front page is the sum of these, not a round number we
-              liked.
+              individuals end up on. It is what we use in our own arithmetic — the list-price
+              figure on the front page is the sum of these, not a round number we liked.
             </p>
           </Answer>
 
@@ -208,10 +215,14 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
 
           <Answer question="What's the catch?">
             <p>
-              These are focused tools, not clones. Each one covers the job you actually opened
-              the original for, and stops there — that&apos;s how {TOOLS.length} of them fit
-              behind one ${BUNDLE_PRICE_USD} subscription. Read the list above before you
-              cancel anything.
+              It&apos;s smaller. {TOOLS.length} tools built by one person do not match{" "}
+              {TOOLS.length} funded products, and we&apos;re not going to pretend otherwise.
+              Each one covers the job you opened the original for and stops there.
+            </p>
+            <p className="mt-3">
+              So the honest pitch isn&apos;t &ldquo;cancel {tool.replaces}&rdquo;. It&apos;s
+              that the next time you need something like it — once, briefly — you already
+              have it, and you don&apos;t start another subscription to find out.
             </p>
           </Answer>
         </div>
@@ -221,7 +232,9 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
             <p className="text-sm tracking-tight">
               {tool.name} plus {others} more, ${BUNDLE_PRICE_USD}/mo
             </p>
-            <p className="mt-1 text-xs text-muted-2">Cancel any time. {TOOL_COUNT_LABEL} tools.</p>
+            <p className="mt-1 text-xs text-muted-2">
+              Cancel any time. Keep {tool.replaces} if you need it.
+            </p>
           </div>
           <Link href="/login?checkout=1" className="btn btn-primary btn-lg shrink-0">
             get the bundle

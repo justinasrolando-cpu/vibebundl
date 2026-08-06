@@ -9,51 +9,46 @@ import {
   useSyncExternalStore,
 } from "react";
 import { usePublicStats } from "@/components/usePublicStats";
-import { BUNDLE_PRICE_USD, TOOLS, TOTAL_ORIGINAL_PRICE, TOOL_COUNT_LABEL } from "@/lib/tools";
+import { BUNDLE_PRICE_USD, TOOLS, TOTAL_ORIGINAL_PRICE } from "@/lib/tools";
 
 /**
- * The savings band — now the first thing under the headline, at hero scale.
+ * The price band.
  *
- * ── The one rule this component exists to keep ──────────────────────────────
- * The number is real or it isn't shown. No seed, no baseline, no "starting
- * from" figure, no padding, no rounding up to something friendlier. There are
- * exactly two figures it will ever headline, and both are arithmetic on
- * something we can point at:
+ * ── What changed, and why it matters ────────────────────────────────────────
+ * This used to headline "$840/mo — what one customer stops paying the month
+ * they switch". Every digit of that was arithmetic on the price list, and the
+ * sentence was still false.
  *
- *   1. `catalogue price − bundle price` — what one customer stops paying per
- *      month. Sourced entirely from src/lib/tools.ts, so it is known on the
- *      server, true before anyone has signed up, and never changes between
- *      the first paint and the RPC landing.
- *   2. `subscription-months × (catalogue price − bundle price)` — the total
- *      customers have actually kept. The months come from the database. It is
- *      only ever headlined once it is a real, non-zero number.
+ * Nobody was paying $860 a month. Nobody buys all 53 of these products. The
+ * subtraction is real and the claim built on it is not, which is the most
+ * dangerous kind of number to put at hero scale: technically defensible, and
+ * indefensible the moment somebody who actually pays for one of them checks.
+ * That is exactly what happened — the first outside reader picked the one
+ * tool he already subscribed to, found ours thinner, and generalised.
  *
- * Until (2) exists the band leads with (1). That isn't a placeholder for a
- * number we wish we had — it's a different, smaller, entirely true claim, and
- * at $840/mo it is a better one to lead with anyway. A "$0 saved" tombstone
- * would be equally honest and actively worse: it invites the reader to infer
- * failure from a number that only means "new".
+ * So the headline is now the LIST PRICE, and the copy says outright that you
+ * were never paying it. That is a true sentence, and it turns out to be the
+ * better pitch: the offer isn't "cancel $860 of software", it's "don't sign
+ * up for the next one".
  *
- * ── Why the band no longer waits for the RPC ────────────────────────────────
- * It used to render nothing until `public_stats()` answered, which was right
- * when it sat halfway down the page and wrong now that it's the hero moment:
- * a 300ms hole above the fold that then shoves the page down. Figure (1) needs
- * no database, so it paints with the document. The *live counts* still wait —
- * they're the only thing here the database owns, and a count we can't source
- * is worse than no count. Their row keeps its height reserved so nothing
- * shifts when they land.
+ * ── The rule that did not change ────────────────────────────────────────────
+ * The number is real or it isn't shown. No seed, no baseline, no padding, no
+ * rounding to something friendlier. $860.39 is the sum of published prices in
+ * src/lib/tools.ts, so it's known on the server, true before anyone signs up,
+ * and cannot drift from the catalogue.
  *
  * ── Why the count-up is not a fabrication ───────────────────────────────────
  * It animates from 0 to the true value once, on first view. Nobody reads a
  * transient 0 as a claim — it's the visual equivalent of the digits landing.
- * Crucially the *markup* is rendered at the true value; the count-up only
- * starts once a layout effect has confirmed we're on a client that can run it,
- * so the server, a crawler, and a reduced-motion visitor all get the real
- * figure with no animation in front of it.
+ * The *markup* renders at the true value; the count-up only starts once a
+ * layout effect confirms we're on a client that can run it, so the server, a
+ * crawler and a reduced-motion visitor all get the real figure with no
+ * animation in front of it.
  */
 
-/** What one customer stops paying, per month. A fact about the price list. */
-const PER_CUSTOMER_MONTHLY = TOTAL_ORIGINAL_PRICE - BUNDLE_PRICE_USD;
+/** The gap between the list price and ours. Shown as arithmetic in the
+    receipt, never as a claim about money anyone actually had. */
+const LIST_MINUS_BUNDLE = TOTAL_ORIGINAL_PRICE - BUNDLE_PRICE_USD;
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
@@ -216,19 +211,10 @@ export default function SavingsBand() {
   const reducedMotion = useReducedMotion();
 
   const ready = status === "ready" && stats !== null;
-  const totalSaved = (stats?.subscriptionMonths ?? 0) * PER_CUSTOMER_MONTHLY;
 
-  /**
-   * Lead with the lifetime total only when there is a lifetime total to lead
-   * with. Rounding to $0 is the same tombstone as having no subscribers at
-   * all, whatever the subscriber count says — so the test is on the figure,
-   * not on the customer count. Nothing is inflated to clear the bar; the band
-   * just declines to headline a number that hasn't happened yet.
-   */
-  const hasTotal = ready && (stats?.activeSubscribers ?? 0) > 0 && Math.round(totalSaved) > 0;
-  const headline = hasTotal ? totalSaved : PER_CUSTOMER_MONTHLY;
-
-  const { shown, start } = useCountUp(headline);
+  /* The headline is the LIST PRICE of the 53, not a saving.
+     See the note at the top of this file for why that changed. */
+  const { shown, start } = useCountUp(TOTAL_ORIGINAL_PRICE);
   const setNode = useOnFirstView(start, !reducedMotion);
 
   return (
@@ -242,40 +228,27 @@ export default function SavingsBand() {
         <div className="flex flex-col gap-9 lg:flex-row lg:items-end lg:justify-between">
           {/* The moment. Everything else on this card is evidence for it. */}
           <div className="min-w-0">
-            <p className="eyebrow">{hasTotal ? "Saved so far" : "What it saves"}</p>
+            <p className="eyebrow">Bought separately</p>
 
             <p className="tnum mt-3 font-sans font-bold text-[clamp(3.25rem,11vw,6rem)] leading-[0.9] tracking-[-0.035em]">
               {/* A screen reader gets the settled figure, once, in words it can
                   say — never a partial count mid-animation. */}
-              <span className="sr-only">
-                {money(headline)}
-                {hasTotal ? "" : " per month"}
-              </span>
+              <span className="sr-only">{money(TOTAL_ORIGINAL_PRICE)} per month</span>
               <span className="text-gradient" aria-hidden>
                 {money(shown)}
               </span>
-              {hasTotal ? null : (
-                <span
-                  className="align-baseline text-[0.26em] font-normal tracking-normal text-muted-2"
-                  aria-hidden
-                >
-                  /mo
-                </span>
-              )}
+              <span
+                className="align-baseline text-[0.26em] font-normal tracking-normal text-muted-2"
+                aria-hidden
+              >
+                /mo
+              </span>
             </p>
 
             <p className="mt-4 max-w-sm text-[0.9375rem] leading-relaxed text-muted">
-              {hasTotal ? (
-                <>
-                  in subscriptions VibeBundl customers aren&apos;t paying for any more.{" "}
-                  <span className="text-foreground">And counting.</span>
-                </>
-              ) : (
-                <>
-                  is what one customer stops paying{" "}
-                  <span className="text-foreground">the month they switch.</span>
-                </>
-              )}
+              is the list price of all {TOOLS.length} bought one at a time.{" "}
+              <span className="text-foreground">You were never paying that</span> — nobody
+              buys all {TOOLS.length}. The point is the next one you&apos;d sign up for.
             </p>
           </div>
 
@@ -289,7 +262,7 @@ export default function SavingsBand() {
             />
             <Line label="VibeBundl" value={`−$${BUNDLE_PRICE_USD.toFixed(2)}`} />
             <div className="mt-2 border-t border-dashed border-border-strong pt-2">
-              <Line label="You keep, monthly" value={`$${PER_CUSTOMER_MONTHLY.toFixed(2)}`} accent />
+              <Line label="Difference" value={`$${LIST_MINUS_BUNDLE.toFixed(2)}`} accent />
             </div>
           </div>
         </div>
@@ -323,20 +296,10 @@ export default function SavingsBand() {
           </dl>
 
           <p className="max-w-md text-xs leading-relaxed text-muted-2 lg:text-right">
-            {hasTotal ? (
-              <>
-                Every active subscription-month multiplied by the{" "}
-                <span className="tnum text-muted">{money(PER_CUSTOMER_MONTHLY)}/mo</span> difference
-                between the {TOOL_COUNT_LABEL} list prices and ours. Read live from the database on
-                every page load — no baseline, no padding.
-              </>
-            ) : (
-              <>
-                We launched recently, so there is no lifetime savings total worth showing yet — and
-                we&apos;re not going to invent one. The figure above is arithmetic on the price
-                list, not a claim about how many people have signed up.
-              </>
-            )}
+            Summed from the public price of each product these replace the core of. We
+            don&apos;t claim you were paying it, and we don&apos;t call the difference a
+            saving — if you actually depend on one of them, keep paying for it. What
+            ${BUNDLE_PRICE_USD} buys is not having to sign up for the next one.
           </p>
         </div>
       </div>
